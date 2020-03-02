@@ -1,48 +1,6 @@
 #include <iostream>
-#include <fstream>
-#include <string>
-#include <sstream>
 
-class CodeParser
-{
-public:
-  CodeParser(const std::string& sourceFile): position_(0)
-  {
-    std::ifstream codeFileStream(sourceFile);
-    std::stringstream codeStream;
-    codeStream << codeFileStream.rdbuf();
-    code_ = codeStream.str();
-    codeFileStream.close();
-  }
-
-  char peek() const
-  {
-    return code_[position_];
-  }
-
-  bool end() const
-  {
-    return position_ == code_.size();
-  }
-
-  bool pos() const
-  {
-    return position_;
-  }
-
-  char consume()
-  {
-    return code_[position_++];
-  }
-
-  void unget()
-  {
-    position_--;
-  }
-private:
-  std::string code_;
-  unsigned int position_;
-};
+#include "scanner.hpp"
 
 int main(int argc, char** argv)
 {
@@ -52,14 +10,14 @@ int main(int argc, char** argv)
     return 0;
   }
 
-  CodeParser code{argv[1]};
+  Scanner scanner{argv[1]};
 
   int tape[30000] = {0};
   int ptr = 0;
 
-  while(!code.end())
+  while(!scanner.end())
   {
-    char command = code.consume();
+    char command = scanner.consume();
     if(command == '+')
     {
       tape[ptr] += 1;
@@ -85,9 +43,9 @@ int main(int argc, char** argv)
       if(tape[ptr] == 0)
       {
         int nesting = 1;
-        while(!code.end())
+        while(!scanner.end())
         {
-          char c = code.consume();
+          char c = scanner.consume();
           if(c == '[')
             nesting++;
           else if(c == ']')
@@ -104,11 +62,11 @@ int main(int argc, char** argv)
       if(tape[ptr] != 0)
       {
         int nesting = 1;
-        code.unget();
-        code.unget();
-        while(code.pos() > 0)
+        scanner.unget();
+        scanner.unget();
+        while(scanner.pos() > 0)
         {
-          char c = code.peek();
+          char c = scanner.peek();
           if(c == ']')
             nesting++;
           else if(c == '[')
@@ -116,11 +74,11 @@ int main(int argc, char** argv)
             nesting--;
             if(nesting == 0)
             {
-              code.consume();
+              scanner.consume();
               break;
             }
           }
-          code.unget();
+          scanner.unget();
         }
       }
     }
