@@ -13,4 +13,5 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_executable(bf
   scanner.hpp scanner.cpp
+  interpreter.hpp interpreter.cpp
   main.cpp)
